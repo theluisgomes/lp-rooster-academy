@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local reference assets (site uses public/)
+/img/
+/Fatias LP/
+/PNG/
+/SVG/
+/Referencias.pdf
+/logo metodo crispy.svg
+/logo rooster academy.png

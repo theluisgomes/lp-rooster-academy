@@ -49,7 +49,7 @@ public/
 
 ### Link de checkout
 
-O campo `offer.cta.href` está como placeholder (`"INSERIR_LINK_DO_CHECKOUT"`). Substitua pela URL real do checkout antes de publicar:
+O campo `offer.cta.href` aponta para `#oferta` (âncora da própria seção) até a URL real do checkout existir. Substitua antes de campanha:
 
 ```ts
 // src/content/landing-content.ts

@@ -271,7 +271,8 @@ export const landingContent: LandingContent = {
     installments: "ou 12x de R$ 20,48 no cartão*",
     cta: {
       label: "Garantir minha vaga agora!",
-      href: "INSERIR_LINK_DO_CHECKOUT",
+      // TODO: substituir pela URL real do checkout antes de campanha.
+      href: "#oferta",
     },
     includedTitle: "O Que Está Incluído:",
     includedItems: [

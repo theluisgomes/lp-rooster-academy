@@ -28,7 +28,7 @@ export function MentorSection() {
             </div>
 
             <div className="flex flex-col">
-              <SectionTitle as="h2" size="xl" className="text-pale-yellow">
+              <SectionTitle as="h2" size="xl" className="text-orange">
                 {mentor.eyebrow}
               </SectionTitle>
               <p className="mt-2 font-display text-2xl text-orange">

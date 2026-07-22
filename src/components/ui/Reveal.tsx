@@ -11,17 +11,30 @@ interface RevealProps {
 
 /**
  * Discrete fade/slide-up entrance animation, driven by IntersectionObserver.
- * A no-op wrapper (renders immediately visible) whenever JavaScript hasn't
- * run yet or `prefers-reduced-motion: reduce` is set — see the `.reveal`
- * rules in globals.css, which are themselves scoped to `no-preference`.
+ *
+ * The `.reveal` class (opacity: 0) is only applied AFTER mount. Without JS,
+ * or before hydration, the content stays fully visible — no blank sections.
+ * Under `prefers-reduced-motion: reduce`, the CSS rules are a no-op anyway.
  */
 export function Reveal({ children, className = "", delayMs = 0 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const [enabled, setEnabled] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+
+    const rect = node.getBoundingClientRect();
+    const alreadyInView =
+      rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+
+    if (alreadyInView) {
+      setIsVisible(true);
+      return;
+    }
+
+    setEnabled(true);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -40,7 +53,7 @@ export function Reveal({ children, className = "", delayMs = 0 }: RevealProps) {
   return (
     <div
       ref={ref}
-      className={`reveal ${isVisible ? "is-visible" : ""} ${className}`}
+      className={`${enabled ? "reveal" : ""} ${isVisible ? "is-visible" : ""} ${className}`}
       style={delayMs ? { transitionDelay: `${delayMs}ms` } : undefined}
     >
       {children}
