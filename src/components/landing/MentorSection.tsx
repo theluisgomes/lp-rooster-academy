@@ -1,3 +1,4 @@
+import { SectionTracker } from "@/components/analytics/SectionTracker";
 import { CTAButton } from "@/components/ui/CTAButton";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import { SectionTitle } from "@/components/ui/SectionTitle";
@@ -13,7 +14,7 @@ export function MentorSection() {
   const { mentor } = landingContent;
 
   return (
-    <section className="section-y">
+    <SectionTracker sectionId={mentor.id} className="section-y">
       <div className="container-page">
         <Reveal>
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[38%_1fr] lg:gap-14">
@@ -56,12 +57,14 @@ export function MentorSection() {
                   variant="black"
                   typeface="sans"
                   fullWidthOnMobile
+                  trackingId={mentor.cta.trackingId}
+                  trackingLocation={mentor.cta.trackingLocation}
                 />
               </div>
             </div>
           </div>
         </Reveal>
       </div>
-    </section>
+    </SectionTracker>
   );
 }

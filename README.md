@@ -8,12 +8,14 @@ Landing page da Rooster Academy para o curso **Método Crispy**, construída com
 - Tailwind CSS v4 (configuração via `@theme` em `globals.css`, sem `tailwind.config.js`)
 - `next/image` para todas as fotografias (otimização automática em WebP/AVIF, lazy-load abaixo da dobra, `priority` só na imagem do hero)
 - `next/font/google` para as fontes (ver seção "Tipografia" abaixo)
+- **GTM-first** analytics (`dataLayer` + Consent Mode v2) + formulário de candidatura (Server Action → webhook)
 
 ## Como rodar
 
 ```bash
 npm install
-npm run dev       # http://localhost:3000
+cp .env.example .env.local   # preencha SITE_URL / GTM / webhook
+npm run dev                  # http://localhost:3000
 ```
 
 Outros comandos:
@@ -24,41 +26,65 @@ npm run start      # roda o build de produção localmente
 npm run lint       # ESLint
 ```
 
+## Variáveis de ambiente
+
+Veja [`.env.example`](.env.example):
+
+| Variável | Uso |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | URL canônica (metadata, sitemap, OG, JSON-LD). Sem barra no final. |
+| `NEXT_PUBLIC_GTM_ID` | ID do container GTM (`GTM-XXXX`). Sem ele, o GTM não carrega. |
+| `LEADS_WEBHOOK_URL` | Endpoint que recebe o JSON do formulário de candidatura. Em dev, se ausente, o lead é logado no console e o submit ainda sucede. Em produção é obrigatória. |
+
+Configure as mesmas variáveis no painel da Vercel (Project → Settings → Environment Variables).
+
 ## Estrutura do projeto
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx        # fontes, <html lang="pt-BR">, metadata (SEO)
-│   ├── page.tsx           # monta as seções da landing, em ordem
-│   └── globals.css        # tokens de cor, tipografia display, container, clamp()
+│   ├── layout.tsx              # fontes, metadata SEO, GTM, Consent Banner
+│   ├── page.tsx                # monta as seções da landing, em ordem
+│   ├── robots.ts / sitemap.ts  # indexação
+│   ├── opengraph-image.tsx     # OG 1200×630
+│   ├── privacidade/page.tsx    # política LGPD
+│   ├── actions/submit-application.ts
+│   └── globals.css
 ├── components/
-│   ├── landing/            # uma seção por arquivo (Hero, Benefits, Curriculum, ...)
-│   └── ui/                 # CTAButton, SectionTitle, ResponsiveImage, Reveal
-├── content/
-│   └── landing-content.ts  # TODO o texto, preços, links, listas e caminhos de imagem
-public/
-├── logos/                   # logo Rooster Academy + lettering SVG "Método Crispy"
-├── images/                  # fotos otimizadas, organizadas por seção
-└── fonts/                   # reservada para a fonte oficial da marca (ver abaixo)
+│   ├── analytics/              # GTM, ConsentBanner, SectionTracker, LandingAnalytics
+│   ├── landing/                # seções (Hero … Offer + ApplicationForm)
+│   ├── seo/JsonLd.tsx
+│   └── ui/                     # CTAButton (com tracking), …
+├── content/landing-content.ts  # copy, preços, CTAs, textos do form
+├── hooks/useScrollDepth.ts
+└── lib/
+    ├── analytics/              # dataLayer, consent, UTM
+    ├── application-schema.ts
+    └── site.ts
 ```
 
 ## Editando o conteúdo
 
 **Todo o texto, preços, links e imagens da página vêm de [`src/content/landing-content.ts`](src/content/landing-content.ts).** Nenhum componente tem texto fixo — para alterar qualquer copy, preço, item de lista ou caminho de imagem, edite apenas esse arquivo. Os componentes em `src/components/landing/` só leem esse objeto.
 
-### Link de checkout
+### Conversão (candidatura)
 
-O campo `offer.cta.href` aponta para `#oferta` (âncora da própria seção) até a URL real do checkout existir. Substitua antes de campanha:
+Os CTAs de conversão apontam para `#cadastro` (formulário com nome, telefone, e-mail, motivação e checkbox LGPD). O submit vai para a Server Action [`submitApplication`](src/app/actions/submit-application.ts), que valida com Zod e faz `POST` em `LEADS_WEBHOOK_URL` com:
 
-```ts
-// src/content/landing-content.ts
-offer: {
-  cta: {
-    href: "https://seu-checkout-real.com/...",
-  },
-},
+```json
+{
+  "name": "...",
+  "phone": "11999999999",
+  "email": "...",
+  "motivation": "...",
+  "submittedAt": "ISO-8601",
+  "utm": { "utm_source": "...", "gclid": "..." },
+  "source": "lp-rooster-academy",
+  "formId": "turma_application"
+}
 ```
+
+UTMs (`utm_*`, `gclid`, `fbclid`) são capturados da query string e persistidos em `sessionStorage` para acompanhar o lead até o submit.
 
 ### Imagens
 
@@ -68,6 +94,53 @@ As fotos usadas hoje são aproximações reais (fotografadas da própria marca) 
 2. Atualize o caminho correspondente em `landing-content.ts` (e o texto de `alt`, se a imagem mudar de conteúdo).
 
 Todas as imagens passam por `next/image`, então qualquer arquivo novo já sai otimizado (tamanhos responsivos, WebP/AVIF, lazy-load) sem configuração adicional.
+
+## SEO
+
+Já incluso:
+
+- Metadata completa (`title`, `description`, `keywords`, `canonical`, Open Graph, Twitter)
+- `metadataBase` via `NEXT_PUBLIC_SITE_URL`
+- `robots.ts` + `sitemap.ts`
+- `opengraph-image.tsx` (1200×630)
+- JSON-LD (`Organization` + `Course` + `Offer` + `WebPage`)
+- Favicon / apple icon a partir do logo
+
+## Analytics (GTM-first)
+
+O React **só** faz `dataLayer.push`. GA4, Meta Pixel e Google Ads ficam configurados **dentro do GTM** (não há pixels hardcoded).
+
+### Consent Mode v2 + LGPD
+
+1. Defaults `denied` rodam em um script inline no `layout` **antes** do GTM (`afterInteractive`).
+2. Banner no rodapé: Aceitar / Recusar → `consent update` + `localStorage`.
+3. Página [`/privacidade`](src/app/privacidade/page.tsx) linkada no banner e no footer.
+
+### Mapa de eventos (`dataLayer`)
+
+| Evento | Quando | Params |
+| --- | --- | --- |
+| `cta_click` | Clique em CTA | `cta_id`, `cta_label`, `cta_location` |
+| `scroll_depth` | 25 / 50 / 75 / 100% | `percent` |
+| `section_view` | Seção entra no viewport (1×) | `section_id` |
+| `form_start` | Primeiro foco no formulário | `form_id` |
+| `form_submit` | Submit iniciado | `form_id` |
+| `generate_lead` | Server Action OK | `form_id`, `value`, `currency` |
+| `form_error` | Validação ou falha | `form_id`, `error_type` |
+
+`page_view` fica a cargo da tag de configuração do GA4 no GTM.
+
+### Checklist no console do GTM
+
+1. Criar container e copiar o ID para `NEXT_PUBLIC_GTM_ID`.
+2. **Consent Initialization** + tags que respeitam Consent Mode.
+3. Tag **GA4 Configuration** (Measurement ID).
+4. Triggers **Custom Event** espelhando a tabela acima; no GA4 marque `generate_lead` como conversão.
+5. Tag **Meta Pixel** (base) + evento `Lead` no trigger `generate_lead`.
+6. (Opcional) Google Ads conversion no mesmo trigger.
+7. **Preview** (Tag Assistant) → validar events no `dataLayer` → **Submit** / Publish.
+
+Como testar localmente: abra o DevTools → Console → `dataLayer` após clicar CTAs / rolar / enviar o form. No GTM Preview, conecte a URL de preview/produção.
 
 ## Cores e tipografia
 
@@ -119,4 +192,4 @@ O projeto é um app Next.js padrão, pronto para deploy na [Vercel](https://verc
 npx vercel
 ```
 
-Ou conectando o repositório diretamente pelo dashboard da Vercel. Nenhuma variável de ambiente é necessária. Para outros provedores, rode `npm run build && npm run start` (requer Node.js 18+).
+Ou conectando o repositório diretamente pelo dashboard da Vercel. Defina `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GTM_ID` e `LEADS_WEBHOOK_URL` no ambiente de Production (e Preview, se quiser). Para outros provedores, rode `npm run build && npm run start` (requer Node.js 18+).

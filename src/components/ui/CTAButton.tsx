@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import type { AnchorHTMLAttributes } from "react";
+import type { AnchorHTMLAttributes, MouseEvent } from "react";
+import { pushEvent } from "@/lib/analytics/dataLayer";
 
 export type CTAVariant =
   | "white"
@@ -21,6 +24,10 @@ interface CTAButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   typeface?: "display" | "sans";
   /** Stretches to 100% width below the `sm` breakpoint, per spec. */
   fullWidthOnMobile?: boolean;
+  /** Stable analytics id (`cta_id`). */
+  trackingId?: string;
+  /** Analytics placement (`cta_location`). */
+  trackingLocation?: string;
 }
 
 const VARIANT_CLASSES: Record<CTAVariant, string> = {
@@ -52,8 +59,7 @@ const TYPEFACE_CLASSES = {
 /**
  * Shared pill CTA used across every section. Always renders a real anchor
  * (in-page anchors scroll smoothly via `html { scroll-behavior: smooth }`
- * in globals.css; the checkout placeholder is a normal external-style link
- * too), never a JS-only button, so it keeps working without JavaScript.
+ * in globals.css), never a JS-only button, so it keeps working without JS.
  */
 export function CTAButton({
   label,
@@ -62,14 +68,29 @@ export function CTAButton({
   size = "md",
   typeface = "display",
   fullWidthOnMobile = false,
+  trackingId,
+  trackingLocation,
   className = "",
+  onClick,
   ...rest
 }: CTAButtonProps) {
   const isExternal = href.startsWith("http");
 
+  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (trackingId && trackingLocation) {
+      pushEvent("cta_click", {
+        cta_id: trackingId,
+        cta_label: label,
+        cta_location: trackingLocation,
+      });
+    }
+    onClick?.(event);
+  }
+
   return (
     <Link
       href={href}
+      onClick={handleClick}
       className={`inline-flex min-h-11 items-center justify-center rounded-full text-center transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2 ${
         SIZE_CLASSES[size]
       } ${TYPEFACE_CLASSES[typeface]} ${

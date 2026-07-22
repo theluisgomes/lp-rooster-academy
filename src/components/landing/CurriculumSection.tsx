@@ -1,3 +1,4 @@
+import { SectionTracker } from "@/components/analytics/SectionTracker";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import { Reveal } from "@/components/ui/Reveal";
@@ -11,7 +12,7 @@ export function CurriculumSection() {
   const { curriculum } = landingContent;
 
   return (
-    <section id={curriculum.id} className="section-y">
+    <SectionTracker sectionId={curriculum.id} className="section-y">
       <div className="container-page">
         <Reveal>
           <SectionTitle as="h2" size="lg" className="mx-auto max-w-2xl text-center text-orange">
@@ -38,6 +39,6 @@ export function CurriculumSection() {
           ))}
         </div>
       </div>
-    </section>
+    </SectionTracker>
   );
 }

@@ -1,3 +1,4 @@
+import { SectionTracker } from "@/components/analytics/SectionTracker";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import { Reveal } from "@/components/ui/Reveal";
@@ -19,7 +20,7 @@ export function DreamChickenSection() {
   const { dreamChicken } = landingContent;
 
   return (
-    <section className="section-y">
+    <SectionTracker sectionId={dreamChicken.id} className="section-y">
       <div className="container-page">
         <Reveal>
           <div className="relative grid grid-cols-1 gap-8 lg:grid-cols-[38%_1fr] lg:gap-14">
@@ -72,6 +73,6 @@ export function DreamChickenSection() {
           </div>
         </Reveal>
       </div>
-    </section>
+    </SectionTracker>
   );
 }

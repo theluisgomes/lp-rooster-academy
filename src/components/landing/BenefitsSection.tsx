@@ -1,3 +1,4 @@
+import { SectionTracker } from "@/components/analytics/SectionTracker";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Reveal } from "@/components/ui/Reveal";
 import { landingContent } from "@/content/landing-content";
@@ -11,7 +12,7 @@ export function BenefitsSection() {
   const { benefits } = landingContent;
 
   return (
-    <section className="section-y">
+    <SectionTracker sectionId={benefits.id} className="section-y">
       <div className="container-page">
         <Reveal>
           <div className="grid overflow-hidden rounded-lg lg:grid-cols-[52%_1fr]">
@@ -47,6 +48,6 @@ export function BenefitsSection() {
           </div>
         </Reveal>
       </div>
-    </section>
+    </SectionTracker>
   );
 }

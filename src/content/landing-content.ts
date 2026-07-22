@@ -2,17 +2,24 @@
  * Single source of truth for every text, price, link, list and image path
  * used across the landing page. Components must not hardcode copy — they
  * only read from this object.
- *
- * NOTE: this content is kept verbatim as provided by the client brief.
- * `curriculum.items[1].description` ("Receita Crispy e receita de
- * armazenamento") likely has a typo in the source material, but it is
- * intentionally left untouched here per explicit instruction.
  */
+
+export interface CtaContent {
+  label: string;
+  href: string;
+  /** Stable id for analytics (`cta_click`). */
+  trackingId: string;
+  /** Section / placement for analytics (`cta_location`). */
+  trackingLocation: string;
+}
 
 export interface LandingContent {
   seo: {
     title: string;
     description: string;
+    keywords: string[];
+    siteName: string;
+    ogImageAlt: string;
   };
   brand: {
     name: string;
@@ -24,13 +31,14 @@ export interface LandingContent {
   hero: {
     eyebrow: string;
     title: string;
+    headline: string;
     subtitle: string;
     backgroundImage: string;
     backgroundImageAlt: string;
-    primaryCta: { label: string; href: string };
-    secondaryCta: { label: string; href: string };
+    primaryCta: CtaContent;
   };
   benefits: {
+    id: string;
     title: string;
     items: { title: string; description: string }[];
   };
@@ -45,6 +53,7 @@ export interface LandingContent {
     }[];
   };
   dreamChicken: {
+    id: string;
     title: string;
     description: string;
     badge: string;
@@ -54,16 +63,31 @@ export interface LandingContent {
     secondaryImageAlt: string;
   };
   crunch: {
+    id: string;
     title: string;
-    verticalLabel: string;
-    cta: { label: string; href: string };
-    features: string[];
+    cta: CtaContent;
     cutoutImage: string;
     cutoutImageAlt: string;
-    biteImage: string;
-    biteImageAlt: string;
+    transformation: {
+      painTitle: string;
+      painItems: string[];
+      solutionTitle: string;
+      solutionItems: string[];
+    };
+  };
+  audience: {
+    id: string;
+    title: string;
+    intro: string;
+    items: string[];
+  };
+  socialProof: {
+    id: string;
+    title: string;
+    testimonials: { name: string; quote: string }[];
   };
   mentor: {
+    id: string;
     eyebrow: string;
     name: string;
     headline: string;
@@ -71,7 +95,7 @@ export interface LandingContent {
     image: string;
     imageAlt: string;
     credentials: { title: string; description: string }[];
-    cta: { label: string; href: string };
+    cta: CtaContent;
   };
   offer: {
     id: string;
@@ -79,10 +103,41 @@ export interface LandingContent {
     description: string;
     originalPrice: string;
     currentPrice: string;
+    /** Numeric BRL value for JSON-LD / generate_lead (e.g. 198). */
+    priceValue: number;
     installments: string;
-    cta: { label: string; href: string };
+    cta: CtaContent;
     includedTitle: string;
     includedItems: string[];
+  };
+  application: {
+    id: string;
+    title: string;
+    description: string;
+    formId: string;
+    fields: {
+      name: { label: string; placeholder: string };
+      phone: { label: string; placeholder: string };
+      email: { label: string; placeholder: string };
+      motivation: { label: string; placeholder: string };
+      lgpd: { label: string };
+    };
+    submitLabel: string;
+    submittingLabel: string;
+    successTitle: string;
+    successMessage: string;
+    errorMessage: string;
+  };
+  consent: {
+    message: string;
+    acceptLabel: string;
+    declineLabel: string;
+    privacyLinkLabel: string;
+  };
+  privacy: {
+    title: string;
+    lastUpdated: string;
+    sections: { heading: string; body: string }[];
   };
   footer: {
     tagline: string;
@@ -95,7 +150,17 @@ export const landingContent: LandingContent = {
   seo: {
     title: "Método Crispy | Rooster Academy",
     description:
-      "Aprenda o método de frango frito americano da Rooster Academy, com receitas premiadas, técnicas profissionais e estratégias de negócio.",
+      "Aprenda a fazer o frango frito americano secreto das grandes redes. Receita profissional com empanamento crispy, sem fritadeira de pressão e com apenas 10 ingredientes.",
+    keywords: [
+      "método crispy",
+      "frango frito americano",
+      "rooster academy",
+      "curso de frango frito",
+      "empanamento crispy",
+      "negócio gastronômico",
+    ],
+    siteName: "Rooster Academy",
+    ogImageAlt: "Método Crispy — Rooster Academy",
   },
 
   brand: {
@@ -109,21 +174,23 @@ export const landingContent: LandingContent = {
   hero: {
     eyebrow: "Rooster Academy",
     title: "Método Crispy",
-    subtitle: "Segredo do Frango Frito Americano Revelado",
+    headline:
+      "Aprenda a fazer o frango frito americano secreto das grandes redes!",
+    subtitle:
+      "Domine uma receita profissional, com o famoso empanamento crispy, sem precisar de fritadeira de pressão e utilizando apenas 10 ingredientes.",
     backgroundImage: "/images/hero/hero-bg.jpg",
     backgroundImageAlt:
       "Pilha de frango frito crocante recebendo um fio de molho cremoso",
     primaryCta: {
       label: "Quero aprender",
-      href: "#oferta",
-    },
-    secondaryCta: {
-      label: "Ver demonstração",
-      href: "#conteudo",
+      href: "#cadastro",
+      trackingId: "hero_primary",
+      trackingLocation: "hero",
     },
   },
 
   benefits: {
+    id: "beneficios",
     title: "Por Que Aprender com a Rooster Academy?",
     items: [
       {
@@ -161,8 +228,9 @@ export const landingContent: LandingContent = {
         alt: "Coxa de frango frito americano",
       },
       {
-        title: "Empanamentos Diversos",
-        description: "Receita Crispy e receita de armazenamento.",
+        title: "Empanamento Crispy",
+        description:
+          "Receita para negócios gastronômicos com padrão e rentabilidade.",
         image: "/images/curriculum/empanamentos.jpg",
         alt: "Porção de frango frito em embalagem da Rooster",
       },
@@ -174,17 +242,18 @@ export const landingContent: LandingContent = {
         alt: "Preparação de frango frito em uma panela",
       },
       {
-        title: "Padronização",
+        title: "Frango Frito Meu Negócio",
         description:
-          "Processos para alta qualidade e consistência em cada preparo.",
-        image: "/images/curriculum/padronizacao.jpg",
-        alt: "Tiras de frango frito servidas em um prato",
+          "Receita aplicada na prática na linha de produção da marca Rooster Crispy Kitchen",
+        image: "/images/curriculum/frango-frito-negocio.jpg",
+        alt: "Porção de frango frito crocante em tigela branca",
       },
       {
-        title: "Estratégias de Negócio",
-        description: "Mentalidade e linha de produção.",
-        image: "/images/curriculum/estrategias.jpg",
-        alt: "Frango frito sendo finalizado com molho",
+        title: "Estratégia de Negócio",
+        description:
+          "Sugestão de cardápio, fornecedores, embalagens e tabela de precificação da receita",
+        image: "/images/curriculum/estrategia-negocio.jpg",
+        alt: "Frango frito crocante com molho sendo finalizado",
       },
       {
         title: "Suporte Exclusivo",
@@ -196,38 +265,114 @@ export const landingContent: LandingContent = {
   },
 
   dreamChicken: {
+    id: "frango-dos-sonhos",
     title: "Prepare o frango dos sonhos",
     description:
       "O segredo do frango frito americano das grandes franquias, de um jeito simples que você pode começar a fazer da cozinha da sua casa.",
     badge: "Ultra fácil e prático",
-    primaryImage: "/images/showcase/frango-dos-sonhos.jpg",
+    primaryImage: "/images/showcase/classic-box.jpg",
     primaryImageAlt:
-      "Prato com tiras de frango frito crocante e três potes de molhos",
-    secondaryImage: "/images/showcase/frango-com-molho.jpg",
+      "Classic Box Rooster com frango frito crocante e batata frita",
+    secondaryImage: "/images/showcase/rooster-bites.jpg",
     secondaryImageAlt:
-      "Tiras de frango frito sobre fundo vermelho e verde-água",
+      "Rooster Bites com molho e picles em tigela branca",
   },
 
   crunch: {
+    id: "crocancia",
     title: "Casquinha CRRRRROK CRRRRROK CRRRRROK",
-    verticalLabel: "crocância",
     cta: {
       label: "Quero me inscrever",
-      href: "#oferta",
+      href: "#cadastro",
+      trackingId: "crunch_enroll",
+      trackingLocation: "crunch",
     },
-    features: [
-      "Técnica de marinação para máxima suculência",
-      "Sistema de empanamento em camadas",
-      "Controle preciso de temperatura e tempo",
-      "Dicas para manter a crocância por mais tempo",
-    ],
     cutoutImage: "/images/showcase/frango-explosao.png",
     cutoutImageAlt: "Duas coxas de frango frito crocante em explosão",
-    biteImage: "/images/showcase/crocancia.jpg",
-    biteImageAlt: "Boca mordendo um pedaço de frango frito crocante",
+    transformation: {
+      painTitle: "Você já passou por isso?",
+      painItems: [
+        "Seu empanado desgruda na fritura.",
+        "Frango sem gosto e sem graça.",
+        "O frango fica encharcado de óleo.",
+        "A casquinha perde a crocância poucos minutos depois de fritar.",
+        "Você já tentou receitas do YouTube e nenhuma ficou igual.",
+        "Acha que precisa investir em equipamentos caros para conseguir um resultado profissional.",
+      ],
+      solutionTitle: "Com o Método Crispy, você aprende a fazer:",
+      solutionItems: [
+        "Empanamento altamente crispado.",
+        "Frango extremamente suculento e sequinho por dentro.",
+        "Casquinha altamente crocante.",
+        "Receita simples, com apenas 10 ingredientes.",
+        "Método fácil de aplicar na prática.",
+        "Pode ser feito na panela ou em fritadeira aberta convencional.",
+      ],
+    },
+  },
+
+  audience: {
+    id: "para-quem",
+    title: "Para quem é o Método Crispy?",
+    intro: "Este treinamento é ideal para quem:",
+    items: [
+      "Quer abrir um delivery de frango frito.",
+      "Já possui um restaurante e deseja adicionar um produto de alta margem.",
+      "Busca uma renda extra com um produto diferenciado.",
+      "Quer preparar um frango frito profissional em casa.",
+      "Deseja aprender uma receita profissional para surpreender amigos, familiares ou clientes.",
+    ],
+  },
+
+  socialProof: {
+    id: "depoimentos",
+    title: "Veja o que os alunos da Turma 1 estão dizendo",
+    testimonials: [
+      {
+        name: "gfteama vare",
+        quote:
+          "Excelente curso 👏 Está me ajudando até em outra empresa. Compensa muito!",
+      },
+      {
+        name: "nego.gyz",
+        quote:
+          "Curso muito bom, mudou totalmente minha visão sobre fritadeiras.",
+      },
+      {
+        name: "carlalainesilviocesar",
+        quote:
+          "Estou fazendo o curso e adorando os resultados! Fazer a receita e dar super certo na primeira tentativa foi fantástico, muito bem explicado e sem precisar ter investimentos altos — isso foi bem importante para mim que estou iniciando agora! Super recomendo o curso!",
+      },
+      {
+        name: "natyesasso",
+        quote:
+          "Top 🔥, vale muito o investimento. Curso na prática de como fazer frango frito!",
+      },
+      {
+        name: "rener_molina",
+        quote:
+          "Único curso que realmente aprendi o método para fazer frango crocante americano, estou adorando o curso, super indico. Top!",
+      },
+      {
+        name: "franguitojr",
+        quote:
+          "Tivemos uma mentoria com a @rooster.academy, e o resultado foi 100%. O resultado ficou diferente, muito bom.",
+      },
+      {
+        name: "gabrielmonteiromtb",
+        quote:
+          "Uma experiência incrível de negócio, o curso muito explicativo e simples ao mesmo tempo. O Luis me parece ser muito humano em querer ver o sucesso de todos. Super recomendo — para o pessoal que está na dúvida em adquirir o treinamento, vale muito a pena. Muito satisfeito. Obrigado!",
+      },
+      {
+        name: "resulta.agencia",
+        quote:
+          "Eu tô fazendo o curso e posso confirmar: a receita funciona mesmo! 🍗 É simples, eficaz e o melhor de tudo — não precisa de nenhum equipamento mirabolante. Estou impressionada com os resultados!",
+      },
+    ],
   },
 
   mentor: {
+    id: "mentor",
     eyebrow: "O Mentor",
     name: "Luis Henrique Dobrovolski Lopes",
     headline:
@@ -257,7 +402,9 @@ export const landingContent: LandingContent = {
     ],
     cta: {
       label: "Saiba mais",
-      href: "#oferta",
+      href: "#cadastro",
+      trackingId: "mentor_more",
+      trackingLocation: "mentor",
     },
   },
 
@@ -265,22 +412,101 @@ export const landingContent: LandingContent = {
     id: "oferta",
     title: "Método Crispy Completo",
     description:
-      "Acesso vitalício a todo o conteúdo, atualizações futuras e suporte exclusivo.",
+      "1 ano de acesso a todo o conteúdo, atualizações futuras e suporte exclusivo.",
     originalPrice: "R$ 498",
     currentPrice: "R$ 198",
+    priceValue: 198,
     installments: "ou 12x de R$ 20,48 no cartão*",
     cta: {
       label: "Garantir minha vaga agora!",
-      // TODO: substituir pela URL real do checkout antes de campanha.
-      href: "#oferta",
+      href: "#cadastro",
+      trackingId: "offer_apply",
+      trackingLocation: "offer",
     },
     includedTitle: "O Que Está Incluído:",
     includedItems: [
-      "Acesso vitalício ao curso completo",
-      "Planilha de custos e margem de lucro",
-      "Checklist de ingredientes e utensílios",
-      "Acesso à comunidade privada",
+      "1 ano de acesso ao curso completo",
+      "Planilha de custos e precificação indicada",
+      "Checklist de ingredientes, lista de equipamentos e utensílios",
+      "Acesso à comunidade privada e grupo no WhatsApp",
       "Certificado de conclusão",
+    ],
+  },
+
+  application: {
+    id: "cadastro",
+    title: "Candidate-se à turma",
+    description:
+      "Preencha o formulário abaixo. Nossa equipe analisa cada candidatura e entra em contato com os próximos passos.",
+    formId: "turma_application",
+    fields: {
+      name: {
+        label: "Nome completo",
+        placeholder: "Seu nome",
+      },
+      phone: {
+        label: "Telefone / WhatsApp",
+        placeholder: "(11) 99999-9999",
+      },
+      email: {
+        label: "E-mail",
+        placeholder: "seu@email.com",
+      },
+      motivation: {
+        label: "Por que você quer aplicar para a turma?",
+        placeholder:
+          "Conte um pouco sobre sua motivação, experiência e o que espera do Método Crispy…",
+      },
+      lgpd: {
+        label:
+          "Autorizo a Rooster Academy a entrar em contato comigo pelos dados informados, de acordo com a Política de Privacidade.",
+      },
+    },
+    submitLabel: "Enviar candidatura",
+    submittingLabel: "Enviando…",
+    successTitle: "Candidatura enviada!",
+    successMessage:
+      "Recebemos seus dados. Em breve nossa equipe entrará em contato.",
+    errorMessage:
+      "Não foi possível enviar sua candidatura. Tente novamente em alguns instantes.",
+  },
+
+  consent: {
+    message:
+      "Usamos cookies e tecnologias semelhantes para medir audiência e melhorar campanhas. Você pode aceitar ou recusar.",
+    acceptLabel: "Aceitar",
+    declineLabel: "Recusar",
+    privacyLinkLabel: "Política de Privacidade",
+  },
+
+  privacy: {
+    title: "Política de Privacidade",
+    lastUpdated: "22 de julho de 2026",
+    sections: [
+      {
+        heading: "Quem somos",
+        body: "A Rooster Academy é responsável pelo tratamento dos dados pessoais coletados nesta landing page do Método Crispy, em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).",
+      },
+      {
+        heading: "Dados que coletamos",
+        body: "Ao se candidatar à turma, coletamos nome, telefone, e-mail e a motivação informada no formulário. Também podemos registrar parâmetros de campanha (UTMs) e dados técnicos de navegação (via cookies/analytics), quando você consentir.",
+      },
+      {
+        heading: "Finalidade",
+        body: "Utilizamos esses dados para analisar candidaturas, entrar em contato sobre a turma, medir o desempenho desta página e, com o seu consentimento, personalizar anúncios.",
+      },
+      {
+        heading: "Cookies e métricas",
+        body: "Com o seu aceite no banner de cookies, podemos ativar ferramentas de analytics e publicidade (por exemplo via Google Tag Manager). Sem o aceite, essas tags permanecem bloqueadas (Consent Mode).",
+      },
+      {
+        heading: "Seus direitos",
+        body: "Você pode solicitar acesso, correção ou exclusão dos seus dados, além de retirar o consentimento a qualquer momento, entrando em contato pelo e-mail informado abaixo.",
+      },
+      {
+        heading: "Contato",
+        body: "Para exercer seus direitos ou tirar dúvidas sobre privacidade, escreva para contato@roosteracademy.com.br.",
+      },
     ],
   },
 
@@ -288,7 +514,11 @@ export const landingContent: LandingContent = {
     tagline: "O segredo do frango frito americano, direto para a sua cozinha.",
     links: [
       { label: "O Que Você Vai Aprender", href: "#conteudo" },
+      { label: "Para quem é", href: "#para-quem" },
+      { label: "Depoimentos", href: "#depoimentos" },
       { label: "Método Crispy Completo", href: "#oferta" },
+      { label: "Candidatura", href: "#cadastro" },
+      { label: "Política de Privacidade", href: "/privacidade" },
     ],
     copyright: `© ${new Date().getFullYear()} Rooster Academy. Todos os direitos reservados.`,
   },

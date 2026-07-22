@@ -1,3 +1,4 @@
+import { SectionTracker } from "@/components/analytics/SectionTracker";
 import { CTAButton } from "@/components/ui/CTAButton";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Reveal } from "@/components/ui/Reveal";
@@ -58,7 +59,7 @@ export function OfferSection() {
   const { offer } = landingContent;
 
   return (
-    <section id={offer.id} className="section-y">
+    <SectionTracker sectionId={offer.id} className="section-y">
       <div className="container-page">
         <Reveal>
           <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-x-14">
@@ -89,6 +90,8 @@ export function OfferSection() {
                   size="xl"
                   typeface="sans"
                   className="w-full max-w-[560px]"
+                  trackingId={offer.cta.trackingId}
+                  trackingLocation={offer.cta.trackingLocation}
                 />
               </div>
             </div>
@@ -125,11 +128,13 @@ export function OfferSection() {
                 size="xl"
                 typeface="sans"
                 className="w-full"
+                trackingId={`${offer.cta.trackingId}_mobile`}
+                trackingLocation={offer.cta.trackingLocation}
               />
             </div>
           </div>
         </Reveal>
       </div>
-    </section>
+    </SectionTracker>
   );
 }

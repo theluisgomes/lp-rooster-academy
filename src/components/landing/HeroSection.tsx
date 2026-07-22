@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { SectionTracker } from "@/components/analytics/SectionTracker";
 import { CTAButton } from "@/components/ui/CTAButton";
 import { landingContent } from "@/content/landing-content";
 
@@ -11,7 +12,10 @@ export function HeroSection() {
   const { hero, brand } = landingContent;
 
   return (
-    <section className="relative flex min-h-[600px] items-center justify-center overflow-hidden lg:min-h-[820px]">
+    <SectionTracker
+      sectionId="hero"
+      className="relative flex min-h-[600px] items-center justify-center overflow-hidden lg:min-h-[820px]"
+    >
       <Image
         src={hero.backgroundImage}
         alt={hero.backgroundImageAlt}
@@ -47,28 +51,26 @@ export function HeroSection() {
           />
         </h1>
 
-        <p className="mx-auto mt-5 max-w-[600px] text-xl font-bold text-white sm:text-2xl lg:mt-6 lg:text-[2rem] lg:leading-snug">
+        <p className="mx-auto mt-5 max-w-[720px] text-xl font-bold text-white sm:text-2xl lg:mt-6 lg:text-[2rem] lg:leading-snug">
+          {hero.headline}
+        </p>
+
+        <p className="mx-auto mt-4 max-w-[640px] text-base leading-relaxed text-white/95 sm:text-lg lg:text-xl">
           {hero.subtitle}
         </p>
 
-        <div className="mt-8 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:justify-center lg:mt-10">
+        <div className="mt-8 flex w-full justify-center lg:mt-10">
           <CTAButton
             label={hero.primaryCta.label}
             href={hero.primaryCta.href}
             variant="white"
             size="lg"
             fullWidthOnMobile
-          />
-          <CTAButton
-            label={hero.secondaryCta.label}
-            href={hero.secondaryCta.href}
-            variant="maroon"
-            size="sm"
-            typeface="sans"
-            fullWidthOnMobile
+            trackingId={hero.primaryCta.trackingId}
+            trackingLocation={hero.primaryCta.trackingLocation}
           />
         </div>
       </div>
-    </section>
+    </SectionTracker>
   );
 }
