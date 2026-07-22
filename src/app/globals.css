@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — Rooster Academy / Método Crispy
+ * Mirrors the brand palette as Tailwind v4 theme tokens (CSS-first config),
+ * so utilities like `bg-orange`, `text-cream`, `rounded-lg` etc. become
+ * available automatically.
+ */
+@theme {
+  --color-orange: #e8490d;
+  --color-orange-dark: #c9340b;
+  --color-red: #b5160c;
+  --color-yellow: #ffae00;
+  --color-cream: #fbefdd;
+  --color-pale-yellow: #fde592;
+  --color-peach: #f8d9a4;
+  --color-mint: #dff4ef;
+  --color-green: #47792f;
+  --color-black: #101010;
+  --color-white: #ffffff;
+
+  /* Large editorial corners (24-36px), on top of Tailwind's default scale */
+  --radius-sm: 24px;
+  --radius-lg: 36px;
+
+  /*
+   * `--font-titan-one` / `--font-inter` are injected as CSS variables by
+   * next/font (see src/app/layout.tsx). Keeping the official-brand-font
+   * swap trivial: only these two lines need to change later.
+   */
+  --font-display: var(--font-titan-one), "Titan One", "Bowlby One SC", ui-sans-serif, sans-serif;
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --container-max: 1280px;
+  --container-padding: 18px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --container-padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --container-padding: 32px;
+  }
+}
+
+/* Smooth in-page scrolling for the hero CTAs, disabled for reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Visible, consistent focus ring for every interactive element */
+:focus-visible {
+  outline: 3px solid var(--color-orange-dark);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Shared page container: 1200-1280px max width, responsive side padding */
+.container-page {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* Generous, consistent vertical rhythm between sections */
+.section-y {
+  padding-block: clamp(2.5rem, 6vw, 6rem);
+}
+
+/* Reusable display-type sizes (clamp-based, avoid fixed breakpoints jumps).
+   Calibrated against the reference art at 1440px:
+   xl ≈ 84px (O Mentor, price) · lg ≈ 56px (section titles) ·
+   ml ≈ 46px (editorial card titles) · md ≈ 36px (item headings) */
+.text-display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 5.25rem);
+  line-height: 1;
+}
+
+.text-display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.text-display-ml {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.4vw, 2.875rem);
+  line-height: 1.1;
+}
+
+.text-display-md {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.15;
+}
+
+/* Discrete on-scroll entrance animation; no-op under reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
